@@ -12,6 +12,19 @@
 #define SS_PIN  5  // ESP32 pin GIOP5 
 #define RST_PIN 27 // ESP32 pin GIOP27 
 
+//define LED:
+#define ledR 13
+#define ledG 26
+#define ledB 32
+
+#define rCh 0
+#define gCh 1
+#define bCh 2
+
+int green[] = {0,255,0};  //green values
+int red[] = {255,0,0};  //red values
+int yellow [] = {255,255,0};  //yellow values
+
 MFRC522 rfid(SS_PIN, RST_PIN);
 
 void setup() {
@@ -19,6 +32,16 @@ void setup() {
   SPI.begin(); // init SPI bus
   rfid.PCD_Init(); // init MFRC522
 
+  ledcAttachPin( ledR, rCh );  //assign RGB led pins to channels
+  ledcAttachPin( ledG, gCh );
+  ledcAttachPin( ledB, bCh );
+
+  ledcSetup(rCh, 1000, 8);  //1kHz PWM, 8-bit
+  ledcSetup(gCh, 1000, 8);
+  ledcSetup(bCh, 1000, 8);
+
+  
+  
   Serial.println("Tap an RFID/NFC tag on the RFID-RC522 reader");
 }
 
@@ -41,4 +64,7 @@ void loop() {
       rfid.PCD_StopCrypto1(); // stop encryption on PCD
     }
   }
+  ledcWrite(rCh, 150);
+  ledcWrite(gCh, 255);
+  ledcWrite(bCh, 0);
 }
