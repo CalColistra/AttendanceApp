@@ -1,6 +1,7 @@
 import { initializeApp} from 'firebase/app'
 import { 
-         getFirestore, collection, onSnapshot, doc
+         getFirestore, collection, onSnapshot, doc,
+         query, where, getDoc
        } from 'firebase/firestore'
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -24,14 +25,29 @@ const db = getFirestore()
 //collection ref:
 const colRef = collection(db, 'Users')
 
-  //get collection data :
-  onSnapshot(colRef, (snapshot) => {
+//queries
+const q = query(colRef, where("userName", "==", "user1"))
+
+  //get collection data from query above:
+  onSnapshot(q, (snapshot) => {
     let users = []
-    snapshot.doc.forEach((doc) => {
+    snapshot.docs.forEach((doc) => {
       users.push({ ...doc.data(), id: doc.id })
     })
     console.log(users)
   })
  
+  //get a single document:
+  const docRef = doc(db, 'Users', 'user1')
+  
+  onSnapshot(docRef, (doc) => {
+    console.log(doc.data(), doc.id)
+  })
 
+  //get a single document:
+  const docRef2 = doc(db, 'user1Classes', 'Calculus')
+  
+  onSnapshot(docRef2, (doc) => {
+    console.log(doc.data(), doc.id)
+  })
   //const docRef = doc(db, 'Users')
