@@ -32,7 +32,6 @@ getDocs(userRef)
       users.push({ ...doc.data(), id: doc.id })
     })
     console.log(users)
-    document.getElementById("test").innerHTML = users;
   })
   .catch(err => {
     console.log(err.message)
