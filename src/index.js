@@ -4,6 +4,7 @@ import {
          query, where, getDoc
        } from 'firebase/firestore'
 
+
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyCwhPomXza0WCgnI16ZRsm8xtBPn8wMH9E",
@@ -52,4 +53,5 @@ const docRef2 = doc(db, 'user1Classes', 'Calculus')
 onSnapshot(docRef2, (doc) => {
   console.log(doc.data(), doc.id)
 })
+
 //const docRef = doc(db, 'Users')
