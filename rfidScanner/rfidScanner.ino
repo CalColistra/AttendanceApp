@@ -17,6 +17,7 @@
 #define ssid "magic-kingdom"
 #define pwd "Irish383"
 static WiFiServer server( 80 );  //using port 80
+WiFiClient client;
 
 /* 2. Define the API Key */
 #define API_KEY "AIzaSyCwhPomXza0WCgnI16ZRsm8xtBPn8wMH9E"
@@ -48,6 +49,13 @@ FirebaseConfig config;
 
 int test = 0;
 int count = 0;
+int query = 1;
+
+//for http request:
+int    HTTP_PORT   = 80;
+String HTTP_METHOD = "GET"; // or "POST"
+char   HOST_NAME[] = "https://firestore.googleapis.com/v1/"; // hostname of web server:
+String PATH_NAME   = "projects/attendanceapp-se/databases/(default)/documents/SoftwareEngineering/Sessions";
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 
@@ -159,6 +167,81 @@ Serial.print("Commit a document (append array)... ");
 
 }
 //----------------------------------------------------------------------
+void timeStampWriteToDB(String userID) {
+    Serial.print("Commit a document (set server value, update document)... ");
+
+    // The dyamic array of write object fb_esp_firestore_document_write_t.
+    std::vector<struct fb_esp_firestore_document_write_t> writes;
+
+    // A write object that will be written to the document.
+    struct fb_esp_firestore_document_write_t transform_write;
+
+    transform_write.type = fb_esp_firestore_document_write_type_transform;
+
+    // Set the document path of document to write (transform)
+    transform_write.document_transform.transform_document_path = "RFID_scans/"+userID;
+
+    // Set a transformation of a field of the document.
+    struct fb_esp_firestore_document_write_field_transforms_t field_transforms;
+
+    // Set field path to write.
+    field_transforms.fieldPath = "time_stamp";
+
+    field_transforms.transform_type = fb_esp_firestore_transform_type_set_to_server_value;
+
+    field_transforms.transform_content = "REQUEST_TIME"; 
+
+    // Add a field transformation object to a write object.
+    transform_write.document_transform.field_transforms.push_back(field_transforms);
+
+    struct fb_esp_firestore_document_write_t update_write;
+
+    update_write.type = fb_esp_firestore_document_write_type_update;
+
+    // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create.ino
+    FirebaseJson content;
+    content.set("fields/userID/stringValue", userID);
+
+
+    // Set the update document content
+    update_write.update_document_content = content.raw();
+
+    // Set the update document path
+    update_write.update_document_path = "RFID_scans/"+userID;
+
+      
+    // Add a write object to a write array.
+    writes.push_back(update_write);  //update first
+
+    // Add a write object to a write array.
+    writes.push_back(transform_write); //transform later
+
+    if (Firebase.Firestore.commitDocument(&fbdo, FIREBASE_PROJECT_ID, "" , writes, ""))
+        Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
+    else
+        Serial.println(fbdo.errorReason());
+
+}
+//----------------------------------------------------------------------
+void queryData() {
+    // send HTTP request header
+    client.println(HTTP_METHOD + " " + PATH_NAME + " HTTP/1.1");
+    client.println("Host: " + String(HOST_NAME));
+    client.println("Connection: close");
+    client.println(); // end HTTP request header
+    while(client.available()){
+      // read an incoming byte from the server and print them to serial monitor:
+      char c = client.read();
+      Serial.print(c);
+    }
+
+    if(!client.connected()){
+      // if the server's disconnected, stop the client:
+      Serial.println("disconnected");
+      client.stop();
+    }
+}
+//----------------------------------------------------------------------
 //function to read user ID of an RFID scan:
 String getID (String userID) {
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
@@ -196,9 +279,14 @@ void loop() {
     if (rfid.PICC_ReadCardSerial()) { // NUID has been read
     userID = "";  //reset userID
     userID = getID(userID);  //get new userID
-    writeToDB(userID);  //write the userID of new scan to firebaseDB
+    //writeToDB(userID);  //write the userID of new scan to firebaseDB
+    timeStampWriteToDB(userID);  //write a userId and timeStamp to firebaseDB
     //Serial.println(userID);
     }
+  }
+  if (query == 1) {
+    queryData();
+    query = 0;
   }
   turnOnLED();
 }
