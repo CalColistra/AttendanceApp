@@ -1,0 +1,45 @@
+create table instructor
+(instructor_id varchar(9),
+ department varchar(15),
+ name varchar(15),
+ primary key (instructor_id)
+);
+
+create table student
+(student_id varchar(9),
+ grade varchar(9) check (grade in ('Freshman', 'Sophomore', 'Junior', 'Senior')),
+ name varchar(15),
+ primary key (student_id)
+);
+
+create table course
+(course_id varchar(9),
+ section_id varchar(9),
+ start_time numeric(4,0) check (start_time <= 1440), 
+ end_time numeric(4,0) check (end_time <= 1440),
+ class_days varchar(9),
+ building varchar(20),
+ room_number numeric(3,0) check (room_number > 0),
+ allowed_misses numeric(2,0) check (allowed_misses >= 0),
+ primary key (course_id, section_id)
+);
+
+create table takes
+(student_id varchar(9) not null,
+ course_id varchar(9) not null,
+ section_id varchar(9) not null,
+ misses numeric(2,0) check (misses >= 0),
+ primary key (student_id, course_id, section_id),
+ foreign key (student_id) references student (student_id) on delete cascade,
+ foreign key (course_id, section_id) references course (course_id, section_id) on delete cascade
+);
+
+create table teaches
+(instructor_id varchar(9) not null,
+ course_id varchar(9) not null,
+ section_id varchar(9) not null,
+ primary key (instructor_id, course_id, section_id),
+ foreign key (instructor_id) references instructor (instructor_id) on delete cascade,
+ foreign key (course_id, section_id) references course (course_id, section_id) on delete cascade
+);
+
