@@ -1,7 +1,7 @@
 import { initializeApp} from 'firebase/app'
 import { 
          getFirestore, collection, onSnapshot, doc,
-         query, where, getDoc
+         query, where, getDoc, Timestamp
        } from 'firebase/firestore'
 
 
@@ -18,40 +18,30 @@ const firebaseConfig = {
   };
 
 //init firebase app:
-initializeApp(firebaseConfig)
+initializeApp(firebaseConfig);
 
 //init services:
-const db = getFirestore()
+const db = getFirestore();
 
-//init collection ref:
-const colRef = collection(db, 'Users')
+//print a timestamp:
+let time = new Timestamp();
+time = Timestamp.now();
+time = time.toDate();
+console.log(time);
 
-//queries
-const q = query(colRef, where("userName", "==", "user1"))
-
-//get collection data from query above:
-let users = []
-onSnapshot(q, (snapshot) => {
+//grab html test element:
+let test = document.getElementById("test");
+//grab Classes collection from database:
+const colRef = collection(db, 'Classes');
+//make a query where name = software engineering
+const q = query(colRef, where("Name", "==", "Software Engineering"));
+let it = [];  //init ana array
+//whenever there is a change in this data query, add it to array and log to console:
+onSnapshot(q, (snapshot) => { 
   snapshot.docs.forEach((doc) => {
-    users.push({ ...doc.data(), id: doc.id })
+    it.push({...doc.data(), id: doc.id });
   })
-  console.log(users)  //print data in users[] to console
-})
-//attempt to write data in users[] in html (doesn't work):
-document.getElementById("test").innerHTML = "" + users[0];  //undefined
-
-//get a single document:
-const docRef = doc(db, 'Users', 'user1')
-//print user1's data to the console:
-onSnapshot(docRef, (doc) => {
-  console.log(doc.data(), doc.id)
+  console.log(it);
+  test.innerHTML = it;
 })
 
-//get a single document (doesn't work):
-const docRef2 = doc(db, 'user1Classes', 'Calculus')
-//print user1Classes data to console (Calculus is undefined):
-onSnapshot(docRef2, (doc) => {
-  console.log(doc.data(), doc.id)
-})
-
-//const docRef = doc(db, 'Users')
