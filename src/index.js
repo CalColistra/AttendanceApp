@@ -35,13 +35,13 @@ let test = document.getElementById("test");
 const colRef = collection(db, 'Classes');
 //make a query where name = software engineering
 const q = query(colRef, where("Name", "==", "Software Engineering"));
-let it = [];  //init ana array
+let se = [];  //init ana array
 //whenever there is a change in this data query, add it to array and log to console:
 onSnapshot(q, (snapshot) => { 
   snapshot.docs.forEach((doc) => {
-    it.push({...doc.data(), id: doc.id });
+    se.push({...doc.data(), id: doc.id });
   })
-  console.log(it);
-  test.innerHTML = it;
+  console.log(se);
+  test.innerHTML = se;
 })
 
