@@ -17,7 +17,7 @@
 #define ssid "magic-kingdom"
 #define pwd "Irish383"
 static WiFiServer server( 80 );  //using port 80
-WiFiClient client;
+//WiFiClient client;
 
 /* 2. Define the API Key */
 #define API_KEY "AIzaSyCwhPomXza0WCgnI16ZRsm8xtBPn8wMH9E"
@@ -223,23 +223,22 @@ void timeStampWriteToDB(String userID) {
 
 }
 //----------------------------------------------------------------------
-void queryData() {
-    // send HTTP request header
-    client.println(HTTP_METHOD + " " + PATH_NAME + " HTTP/1.1");
-    client.println("Host: " + String(HOST_NAME));
-    client.println("Connection: close");
-    client.println(); // end HTTP request header
-    while(client.available()){
-      // read an incoming byte from the server and print them to serial monitor:
-      char c = client.read();
-      Serial.print(c);
-    }
+void getDoc() {
+    String documentPath = "Classes/SoftwareEngineering";
+        String mask = "Students";
 
-    if(!client.connected()){
-      // if the server's disconnected, stop the client:
-      Serial.println("disconnected");
-      client.stop();
-    }
+        // If the document path contains space e.g. "a b c/d e f"
+        // It should encode the space as %20 then the path will be "a%20b%20c/d%20e%20f"
+
+        Serial.print("Get a document... ");
+
+        if (Firebase.Firestore.getDocument(&fbdo, FIREBASE_PROJECT_ID, "", documentPath.c_str(), mask.c_str())){
+          Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
+          FirebaseJsonData result = fbdo.payload().c_str().setJsonData;
+          Serial.println(result.type);
+        }
+        else
+            Serial.println(fbdo.errorReason());
 }
 //----------------------------------------------------------------------
 //function to read user ID of an RFID scan:
@@ -285,7 +284,7 @@ void loop() {
     }
   }
   if (query == 1) {
-    queryData();
+    getDoc();
     query = 0;
   }
   turnOnLED();
