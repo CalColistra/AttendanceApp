@@ -13,6 +13,32 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script type = "module" src="../src/index.js"></script>
+    <script>
+      let currentClass = null;
+      let currentUser = null;
+      function makeClassesVisible () {
+        let show = document.getElementById("homePage");
+        show.style.display="flex";
+        let load = document.getElementById("loadButton");
+        load.style.visibility="hidden";
+      };
+      function setClass(aClass) {
+        currentClass = aClass;
+        document.getElementById('currentClass').innerText = aClass;
+        let homePage = document.getElementById('homePage');
+        homePage.style.display="none";
+        let title = document.getElementById("title");
+        title.innerText = currentClass;
+        let showTable = document.getElementById("showTable");
+        showTable.innerText = 'true';
+      }
+      function setUser(aUser) {
+        currentUser = aUser;
+        let user = document.getElementById("currentUser");
+        user.innerText = currentUser;
+      }
+      //setUser('20fbc924'); // hardcoded for this user
+    </script>
 
   </head>
 
@@ -40,8 +66,7 @@
       </div>
       <div class="navbar navbar-dark bg-dark box-shadow">
         <div class="container d-flex justify-content-between">
-          <a href="#" class="navbar-brand d-flex align-items-center">
-            
+          <a href="index.html" class="navbar-brand d-flex align-items-center">
             <strong class="shadow">Home</strong>
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +77,7 @@
     </header>
 
     <main role="main">
-
+      
       <section class="text-center">
         <div class="container">
           <h1 class="jumbotron-heading">Attendance App</h1>
@@ -60,25 +85,93 @@
       </section>
 
       <div class="sidespace album py-5 bg-light">
-        <h2 class="text-center">Classes: </h2>
+        
+        <style>
+          tr:nth-child(even) {
+              background-color: #D6EEEE;
+          }
+          .dataTable{
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid black;
+          }
+        </style>
+        
+        <h2 class="text-center" id="title" >Classes: </h2>
+        <div id = "table">
+         
+        </div>
+        <div id = "loadButton" style="display: flex; justify-content: center;">
+          <button id = "loadButton" onclick="makeClassesVisible()">Load Classes</button>
+        </div>
         <div class="container">
 
-          <div class="row">
-
+          <div class="row" id = "homePage" style = "display: none;" >
+            <!-- class 1 -->
             <div class="next row col-6 col-sm-6 col-md-4">
               <div class="card" style="width: 60%;">
                 <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
                 <div class="card-body">
-                  <p class="card-text">class 1</p>
+                  <p class="card-text" id="class1"></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.href='class.html';">See More</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class1').textContent);">See More</button>
                       
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
+              <!-- class 2 -->
+            <div class="next row col-6 col-sm-6 col-md-4">
+              <div class="card" style="width: 60%;">
+                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+                <div class="card-body">
+                  <p class="card-text" id="class2"></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class2').textContent);">See More</button>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <!-- class 3 -->
+            <div class="next row col-6 col-sm-6 col-md-4">
+              <div class="card" style="width: 60%;">
+                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+                <div class="card-body">
+                  <p class="card-text" id="class3"></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class3').textContent);">See More</button>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- class 4 -->
+            <div class="next row col-6 col-sm-6 col-md-4">
+              <div class="card" style="width: 60%;">
+                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+                <div class="card-body">
+                  <p class="card-text" id="class4"></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class4').textContent);">See More</button>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
 
           </div>
         </div>
@@ -87,11 +180,16 @@
     </main>
 
     <footer class="text-muted">
-      <div class="container">
-
-        <p id = "test"></p>
-        
+      <div style="justify-content: center; display: flex;">
+        <a href="index.html">
+          <strong class="shadow">Back To Home</strong>
+        </a>
       </div>
+      
+      <p id = "currentPage" style = "display: none;">homePage</p>
+      <p id = "currentClass" style = "display: none;">null</p>
+      <p id = "currentUser" style = "display: none;">20fbc924</p>
+      <p id = "showTable" style = "display: none;">false</p>
     </footer>
 
     <!-- Bootstrap core JavaScript
