@@ -17,27 +17,145 @@
       let currentClass = null;
       let currentUser = null;
       function makeClassesVisible () {
-        let show = document.getElementById("homePage");
-        show.style.display="flex";
+        let user = document.getElementById("username").value;
+        setUser(user);
+        let title = document.getElementById("title");
         let load = document.getElementById("loadButton");
         load.style.visibility="hidden";
+        let currentPage = document.getElementById("currentPage");
+        if (user != "admin") {
+          title.innerHTML=user +"'s Classes";
+          let show = document.getElementById("homePage");
+          show.style.display="flex";
+          currentPage.innerText = "homePage";
+          let showClasses = document.getElementById("showClasses");
+          document.getElementById("backToClass").style.display = 'none';
+          document.getElementById("table").style.display = 'none';
+          document.getElementById("currentClass").innerText = "null";
+          document.getElementById("table").innerHTML = " ";
+          showClasses.innerText="true";
+        }
+        else {
+          title.innerText = "Admin Page";
+          currentPage.innerText = "adminPage";
+          let adminStart = document.getElementById("adminStart");
+          adminStart.style.display = "flex";
+        }
       };
+      function adminChoice() {
+        let adminStart = document.getElementById("adminStart");
+        if (document.getElementById('initClass').checked) {
+          adminStart.style.display = "none";
+          let initClassPage = document.getElementById("initClassPage");
+          initClassPage.style.display = "block";
+          document.getElementById('title').innerText = "Create a Class";
+        }
+        else if(document.getElementById('addStudents').checked) {
+          adminStart.style.display = "none";
+          document.getElementById("addStudentsPage").style.display = "block";
+          document.getElementById('title').innerText = "Add Students";
+        }
+      }
+      function checkClassInput() {
+        let name = document.getElementById("className").value;
+        let firstDay = document.getElementById("firstDay").value;
+        let lastDay = document.getElementById("lastDay").value;
+        let startTime = document.getElementById("startTime").value;
+        let endTime =  document.getElementById("newClassTimeSlotEnd").innerText = document.getElementById("endTime").value;
+        let roomNum = document.getElementById("roomNum").value;
+        let days = [];
+        if(document.getElementById("Monday").checked) days.push("Monday");
+        if(document.getElementById("Tuesday").checked) days.push("Tuesday");
+        if(document.getElementById("Wednesday").checked) days.push("Wednesday");
+        if(document.getElementById("Thursday").checked) days.push("Thursday");
+        if(document.getElementById("Friday").checked) days.push("Friday");
+        let dayString = "";
+        for (let i = 0; i<days.length; i++) {
+          if (i <(days.length - 1)) dayString = dayString + days[i]+" ";
+          else dayString = dayString + days[i];
+        }
+        if ((dayString == '') || (dayString == 'null') || (dayString == ' ')) invalidInput();
+        else if ((name == '') || (name == 'null') || (name == ' ')) invalidInput();
+        else if ((firstDay == '') || (firstDay == 'null') || (firstDay == ' ')) invalidInput();
+        else if ((lastDay == '') || (lastDay == 'null') || (lastDay == ' ')) invalidInput();
+        else if ((startTime == '') || (startTime == 'null') || (startTime == ' ')) invalidInput();
+        else if ((endTime == '') || (endTime == 'null') || (endTime == ' ')) invalidInput();
+        else if ((roomNum == '') || (roomNum == 'null') || (roomNum == ' ')) invalidInput();
+        else submitNewClass();
+      }
+      function invalidInput() {
+        console.log("called invalidInput()");
+        alert("Invalid inputs or a data field is empty. \n Be sure to enter data in every field.");
+      }
+      function submitNewClass() {
+        document.getElementById("title").style.display = 'none';
+        document.getElementById("newClassName").innerText = document.getElementById("className").value;
+        let days = [];
+        if(document.getElementById("Monday").checked) days.push("Monday");
+        if(document.getElementById("Tuesday").checked) days.push("Tuesday");
+        if(document.getElementById("Wednesday").checked) days.push("Wednesday");
+        if(document.getElementById("Thursday").checked) days.push("Thursday");
+        if(document.getElementById("Friday").checked) days.push("Friday");
+        let dayString = "";
+        for (let i = 0; i<days.length; i++) {
+          if (i <(days.length - 1)) dayString = dayString + days[i]+" ";
+          else dayString = dayString + days[i];
+        }
+        document.getElementById("newClassDays").innerText = dayString;
+        document.getElementById("newClassStartDay").innerText = document.getElementById("firstDay").value;
+        document.getElementById("newClassEndDay").innerText = document.getElementById("lastDay").value;
+        document.getElementById("newClassTimeSlotStart").innerText = document.getElementById("startTime").value;
+        document.getElementById("newClassTimeSlotEnd").innerText = document.getElementById("endTime").value;
+        document.getElementById("roomNumber").innerText = document.getElementById("roomNum").value;
+        document.getElementById("initNewClass").innerText = "true";
+        document.getElementById("initClassPage").style.display = "none";
+        document.getElementById("confirmNewClass").style.display = "block";
+      }
       function setClass(aClass) {
-        currentClass = aClass;
-        document.getElementById('currentClass').innerText = aClass;
+        currentClass = document.getElementById('currentClass');
+        currentClass.innerText = aClass;
         let homePage = document.getElementById('homePage');
-        homePage.style.display="none";
-        let title = document.getElementById("title");
-        title.innerText = currentClass;
-        let showTable = document.getElementById("showTable");
+        homePage.style.display='none';
+        let title = document.getElementById('title');
+        title.innerText = currentClass.textContent;
+        let showTable = document.getElementById('showTable');
+        document.getElementById('table').style.display = "block";
         showTable.innerText = 'true';
+        document.getElementById("backToClass").style.display = 'block';
       }
       function setUser(aUser) {
         currentUser = aUser;
         let user = document.getElementById("currentUser");
         user.innerText = currentUser;
       }
-      //setUser('20fbc924'); // hardcoded for this user
+      function adminBack() {
+        document.getElementById("adminBack").style.display = "none";
+        document.getElementById("confirmAddStudent").style.display = "none";
+        document.getElementById("initClassPage").style.display = "none";
+        document.getElementById("confirmNewClass").style.display = "none";
+        document.getElementById("addStudentsPage").style.display = "none";
+        document.getElementById("adminStart").style.display = "flex";
+        document.getElementById('title').innerText = "Admin Page";
+        document.getElementById("title").style.display = 'block';
+      }
+      function checkStudentInput() {
+        let className = document.getElementById("addStudentToClass").value;
+        let studentName = document.getElementById("studentID").value;
+        if ((className == '') || (className == 'null') || (className == ' ')) invalidInput();
+        else if ((studentName == '') || (studentName == 'null') || (studentName == ' ')) invalidInput();
+        else addStudent();
+      }
+      function addStudent() {
+        document.getElementById("addStudentsPage").style.display = "none";
+        document.getElementById("confirmAddStudent").style.display = "block";
+        document.getElementById("addingToClass").innerText = document.getElementById("addStudentToClass").value;
+        document.getElementById("studentIdVal").innerText = document.getElementById("studentID").value;
+        document.getElementById("addStudentBool").innerText = "true";
+      }
+      function addAnother () {
+        document.getElementById("confirmAddStudent").style.display = "none";
+        document.getElementById("addStudentsPage").style.display = "block";
+      }
     </script>
 
   </head>
@@ -76,7 +194,7 @@
       </div>
     </header>
 
-    <main role="main">
+  <main role="main">
       
       <section class="text-center">
         <div class="container">
@@ -84,7 +202,7 @@
         </div>
       </section>
 
-      <div class="sidespace album py-5 bg-light">
+    <div class="sidespace album py-5 bg-light">
         
         <style>
           tr:nth-child(even) {
@@ -98,79 +216,190 @@
           }
         </style>
         
-        <h2 class="text-center" id="title" >Classes: </h2>
+        <h2 class="text-center" id="title" >Login: </h2>
+
         <div id = "table">
-         
         </div>
+        <div id = "backToClass" style =  "display: none; text-align:center;">
+          <br/>
+          <button id="backButton" onclick="makeClassesVisible();"> Back </button>
+        </div>
+        
+        <div id = "adminStart" style="display: none; ">
+            <p style="width: 60%;margin-left: auto; margin-right: auto;text-align: center;"> Please choose an option:
+              <br/>
+              <label> <input type="radio" name="choice" value="initClass" id ="initClass"/> Initialize a new class</label> 
+              <br/>
+              <label> <input type="radio" name="choice" value="addStudents" id ="addStudents" /> Add students to a class</label>
+              <br/>
+              <button id="none" onclick="adminChoice();">Sumbit</button>
+            </p>
+        </div>
+
+        <div id = "initClassPage" style="display: none; text-align:center ;">
+          <div style="padding: 2px; background-color: #f9f9f9;">
+            <label>Enter the name of the class: <input type="text" name="className" value="" id ="className"/></label>  <br/>
+            <label>Enter the room number: <input type="text" name="roomNum" value="" id ="roomNum"/></label> 
+          </div>
+          <div style="padding: 10px; background-color: #f9f9f9;">
+            <table style="width: 50%;margin-left: auto; margin-right: auto;">
+              <th><label>Which days of the week does the class meet?:</label></th>
+              <tr><td><label>Monday <input type="checkbox" name="Monday" value="" id ="Monday"/></label></td> </tr>
+              <tr><td><label>Tuesday <input type="checkbox" name="Tuesday" value="" id ="Tuesday"/></label></td> </tr>
+              <tr><td><label>Wednesday <input type="checkbox" name="Wednesday" value="" id ="Wednesday"/></label></td> </tr>
+              <tr><td><label>Thursday <input type="checkbox" name="Thursday" value="" id ="Thursday"/></label></td> </tr>
+              <tr><td><label>Friday <input type="checkbox" name="Friday" value="" id ="Friday"/></label></td> </tr>
+            </table>
+            <div style="padding: 2px; background-color: #f9f9f9;">
+              <label>Enter the first day of this class: <input type="date" name="firstDay" value="" id ="firstDay"/></label> <br/>
+              <label>Enter the last day of this class: <input type="date" name="lastDay" value="" id ="lastDay"/></label><br/>
+              <strong>Enter the time slot for this class:</strong><br/>
+              <label>Start Time: <input type="time" name="startTime" value="" id ="startTime"/></label>  
+              <label>End Time: <input type="time" name="endTime" value="" id ="endTime"/></label>  <br/>
+            </div>
+            <button id="submitNewClassButton" onclick="checkClassInput();"> Submit this class to the database </button><br/><br/>
+            <button id="adminBack" onclick="adminBack();"> Back </button>
+          </div>
+        </div>
+
+        <div id="confirmNewClass" style="display: none; text-align:center;">
+          <strong>You have succesfully added a new class to the database</strong><br/>
+          <button id="adminBack" onclick="adminBack();"> Back </button>
+        </div>
+
+        <div id = "addStudentsPage" style="display: none; text-align:center ;">
+          <label>Enter the name of the class: <input type="text" name="addStudentToClass" value="" id ="addStudentToClass"/></label> <br/>
+          <label>Enter the student ID: <input type="text" name="studentID" value="" id ="studentID"/></label><br/>
+          <button id="addStudent" onclick="checkStudentInput();"> Add student to class </button><br/><br/>
+          <button id="adminBack" onclick="adminBack();"> Back </button>
+        </div>
+
+        <div id="confirmAddStudent" style="display: none; text-align:center;">
+          <strong>You have succesfully added a student to the class</strong><br/>
+          <button id="addAnother" onclick="addAnother();"> Add Another Student </button> <br/>
+          <button id="adminBack" onclick="adminBack();"> Back </button>
+        </div>
+
+
         <div id = "loadButton" style="display: flex; justify-content: center;">
-          <button id = "loadButton" onclick="makeClassesVisible()">Load Classes</button>
+          <input id="username" type="text" placeholder="Enter Username">
+          <button id = "loadButton" onclick="makeClassesVisible()">Submit</button>
         </div>
         <div class="container">
 
-          <div class="row" id = "homePage" style = "display: none;" >
-            <!-- class 1 -->
-            <div class="next row col-6 col-sm-6 col-md-4">
-              <div class="card" style="width: 60%;">
-                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
-                <div class="card-body">
-                  <p class="card-text" id="class1"></p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class1').textContent);">See More</button>
-                      
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div class="row" id = "homePage" style = "display: none;" >
 
-              <!-- class 2 -->
-            <div class="next row col-6 col-sm-6 col-md-4">
-              <div class="card" style="width: 60%;">
-                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
-                <div class="card-body">
-                  <p class="card-text" id="class2"></p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class2').textContent);">See More</button>
-                      
-                    </div>
+      <!-- class 1 -->
+        <div class="next row col-6 col-sm-6 col-md-4" id="showClass1" style = "display: none;">
+          <div class="card" style="width: 60%;">
+            <a href='#' onclick="setClass(document.getElementById('class1').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+              <div class="card-body">
+                <p class="card-text" id="class1"></p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class1').textContent);">See More</button>
+          
                   </div>
                 </div>
               </div>
-            </div>
-              <!-- class 3 -->
-            <div class="next row col-6 col-sm-6 col-md-4">
-              <div class="card" style="width: 60%;">
-                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
-                <div class="card-body">
-                  <p class="card-text" id="class3"></p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class3').textContent);">See More</button>
-                      
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- class 4 -->
-            <div class="next row col-6 col-sm-6 col-md-4">
-              <div class="card" style="width: 60%;">
-                <a href="#.html"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
-                <div class="card-body">
-                  <p class="card-text" id="class4"></p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class4').textContent);">See More</button>
-                      
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
 
+      <!-- class 2 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass2" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class2').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class2"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class2').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- class 3 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass3" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class3').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class3"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class3').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- class 4 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass4" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class4').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class4"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class4').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- class 5 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass5" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class5').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class5"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class5').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- class 6 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass6" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class6').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class6"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class6').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- class 7 -->
+      <div class="next row col-6 col-sm-6 col-md-4" id="showClass7" style = "display: none;">
+        <div class="card" style="width: 60%;">
+          <a href='#' onclick="setClass(document.getElementById('class7').textContent);"><img class="card-img-top" src="../src/assets/img/education-icon.png" alt="Card image"></a>
+            <div class="card-body">
+              <p class="card-text" id="class7"></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setClass(document.getElementById('class7').textContent);">See More</button>
+        
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
 
 
           </div>
@@ -186,10 +415,24 @@
         </a>
       </div>
       
-      <p id = "currentPage" style = "display: none;">homePage</p>
+      <p id = "currentPage" style = "display: none;">loginPage</p>
       <p id = "currentClass" style = "display: none;">null</p>
-      <p id = "currentUser" style = "display: none;">20fbc924</p>
+      <p id = "currentUser" style = "display: none;">null</p>
       <p id = "showTable" style = "display: none;">false</p>
+      <p id = "showClasses" style = "display: none;">false</p>
+
+      <p id="initNewClass" style = "display: none;">false</p>
+      <p id="newClassName" style = "display: none;">null</p>
+      <p id="newClassDays" style = "display: none;">null</p>
+      <p id="newClassTimeSlotStart" style = "display: none;">null</p>
+      <p id="newClassTimeSlotEnd" style = "display: none;">null</p>
+      <p id="newClassStartDay" style = "display: none;">null</p>
+      <p id="newClassEndDay" style = "display: none;">null</p>
+      <p id="roomNumber" style = "display: none;">null</p>
+
+      <p id="addingToClass" style = "display: none;">null</p>
+      <p id="studentIdVal" style = "display: none;">null</p>
+      <p id="addStudentBool" style = "display: none;">false</p>
     </footer>
 
     <!-- Bootstrap core JavaScript

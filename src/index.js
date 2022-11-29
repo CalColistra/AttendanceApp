@@ -1,7 +1,8 @@
 import { initializeApp} from 'firebase/app'
 import { 
          getFirestore, collection, onSnapshot, doc,
-         query, where, getDocs, Timestamp, getDoc
+         query, where, getDocs, Timestamp, getDoc, setDoc,
+         updateDoc
        } from 'firebase/firestore'
 
 
@@ -26,88 +27,255 @@ const db = getFirestore();
 //  init currentPage variable
 let currentPage = document.getElementById("currentPage").textContent;
 console.log(currentPage);  // log it
-//  init currentUser variable:
-let currentUser = document.getElementById("currentUser").textContent;
-console.log(currentUser);  //  log it
 // init reference to element with id showTable
 let showTable = document.getElementById("showTable");
+// init reference to element with id showClasses
+let showClasses = document.getElementById("showClasses");
 //  init reference to element with id currnetClass
 let currentClass = document.getElementById("currentClass").textContent;
-
 //------------------------------------------------------------------
-
 //  function that executes every half second:
-setInterval(function() { // every half second check currentClass
-  //  grab the currentClass content from index.html:
-  currentClass = document.getElementById("currentClass").textContent; 
-  //console.log(currentClass);
-  //  grab thecurrentUser content from index.html:
-  currentUser = document.getElementById("currentUser").textContent;
-  //console.log(currentUser);
+setInterval(function() { // run every half second
   //  check if show table content from index.html is true:
   let showTableBool = showTable.textContent;
-  if (showTableBool == 'true') {  //  if showTableBool == true
+  if (showTableBool == 'true') {
+    //  grab the currentClass content from index.html:
+    let currentClass = document.getElementById("currentClass").textContent; 
+    //  grab thecurrentUser content from index.html:
+    let currentUser = document.getElementById("currentUser").textContent;
     populateTable(currentUser, currentClass);  //  call populateTable
-    showTable.innerText = 'false';  //  set showTable content to false
+    showTable.innerText = 'false';  //  set showTable to false
   }
-}, 500);   //time interval for every half second
-
+  //  check if showClasses content from index.html is true
+  let showClassesBool = showClasses.textContent;
+  if (showClassesBool == "true") {
+    showClasses.innerText = "false";  // set it to false
+    populateHomePage();  //  call populateHomePage
+  }
+  //  check if the admin is trying to initialize a new class:
+  if ((document.getElementById("initNewClass").textContent) == "true") {
+    //  retrieve all the data entered by the admin:
+    //  get the name of class:
+    let className = document.getElementById("newClassName").textContent;
+    //  get days of the week that the class will meet:
+    let classDays = document.getElementById("newClassDays").textContent;
+    //  get the time of when the class begins:
+    let timeSlotStart = document.getElementById("newClassTimeSlotStart").textContent;
+    //  get the time of when the class ends:
+    let timeSlotEnd = document.getElementById("newClassTimeSlotEnd").textContent;
+    //  get the first day of the class:
+    let firstDay = document.getElementById("newClassStartDay").textContent;
+    //  get the last day of the class:
+    let lastDay = document.getElementById("newClassEndDay").textContent;
+    //  get the room number:
+    let roomNumber = document.getElementById("roomNumber").textContent;
+    //  call initializeClass and pass it all of the new data:
+    initializeClass(className, classDays, timeSlotStart, timeSlotEnd, firstDay, lastDay, roomNumber);
+    //console.log("called initClass");  //  console log for testing
+    document.getElementById("initNewClass").innerText = "false";  //set initNewClass value to false
+  }
+  //  check if the admin is trying to add student to a class:
+  if ((document.getElementById("addStudentBool").textContent) == "true") {
+    //  get the name of the class that they are trying to add to:
+    let className = document.getElementById("addingToClass").textContent;
+    //  get the student ID of the student they are trying to add:
+    let studentID = document.getElementById("studentIdVal").textContent;
+    //console.log("calling addStudent");  //log to console for testing
+    //  call addStudent and pass it the className and Student ID:
+    addStudent(className, studentID);
+    //  set addStudentBool to false:
+    document.getElementById("addStudentBool").innerText = "false";
+  }
+}, 500);   //time interval for every half second (500ms = .5 seconds)
 //------------------------------------------------------------------
-
-let names = [];  //array to be used in homePage
 // function that populates the home page with course names from the database:
 async function populateHomePage() {
-  //  grab 'Classes' collection from database:
-  const querySnapshot = await getDocs(collection(db, "Classes"));
-  //  iterate through each doc in 'Classes':
-  querySnapshot.forEach((doc) => {
-    //push the Name of each 'Class' doc into names[]:
-    names.push(doc.data().Name);
-  })
-  //  iterate through names[] array:
-  for (let i = 1; i < (names.length) + 1; i++) {
-    //  create strings for each html element id's:
-    let currentID = "class" + i;
-    //  grab a reference to new html elements:
-    let elementRef = document.getElementById(currentID);
-    //  write the name of each class in html element:
-    elementRef.innerText = names[i-1];
-  }
-}
-populateHomePage();
-
-//------------------------------------------------------------------
-
-async function populateTable(user, currentClass) {
-  let stamps = [];
-  let table = "<table class='dataTable'>";
-  table = table + "<tr> <th>Class Date</th> <th>Time of Swipe</th> <th>Attendance Mark</th> </tr>";
-  //  grab 'RFID_scans' collection from database:
-  const docRef = doc(db, "RFID_scans", user);
-  const docSnap = await getDoc(docRef);
+  //  grab thecurrentUser content from index.html:
+  let currentUser = document.getElementById("currentUser").textContent;
+  //  grab the user doc from'Users' collection from database:
+  const docRef = doc(db, "Users", currentUser);
+  const docSnap = await getDoc(docRef);  //snapshot data
+  let classNames = [];  //array to be used in homePage
   if (docSnap.exists()) {
-    stamps.push(docSnap.data().SoftwareEngineering);
-    //console.log("Document data:", stamps);
+    //  push class names from db to array
+    classNames.push(docSnap.data().Classes);
+    //console.log("Document data:", classNames[0]);
   } else {
     // doc.data() will be undefined in this case
-    console.log("No such document!");
+    console.log("No such document!\ncurrentUser= " + currentUser);
   }
-  let dateStamps;
-  let timeStamps;
+  //  write the inner html to show users classes:
+  let elementRef = document.getElementById("homePage");
+  elementRef.style.display = "flex";
+  //  iterate through names[] array:
+  for (let i = 0; i < classNames[0].length; i++) {
+    //  write the class name in the html cards:
+    document.getElementById("class"+(i+1)).innerText = classNames[0][i];
+    //  init a string for getting the html card element by its id
+    let s = "showClass" + (i+1);
+    let show = document.getElementById(s);  //  grab the card element by ID
+    show.style.display = "flex";  //display the html card element to the user
+  }
+}
+//------------------------------------------------------------------
+//  function that populates a table of time stamps of 
+//  the current user's RFID scans:
+async function populateTable(user, currentClass) {
+  //  array to later be initialized with the user's time stamps:
+  let stamps = [];
+  //  initialize a string for writing the table to index.html:
+  let table = "<table class='dataTable'>";
+  //  add table headers to the string:
+  table = table + "<tr> <th>Class Date</th> <th>Time of Swipe</th> <th>Attendance Mark</th> </tr>";
+  //  grab the student from the 'Students' subcollection inside the current class's document:
+  const docRef = doc(db, "Classes", currentClass, "Students",  user);
+  const docSnap = await getDoc(docRef);  //  get a reference to the document
+  if (docSnap.exists()) {  //  check if the reference exists
+    //  get the RFID_scans array for the current student:
+    stamps.push(docSnap.data().RFID_scans);
+    //console.log("Document data:", stamps);  //  log to console for testing
+  } else {  //  in this case, the reference did not exist
+    // doc.data() will be undefined in this case
+    console.log("No such document!");  //  log it to the console
+  }
+  let dateStamps;  //  variable to hold dates time stamps
+  let timeStamps;  //  variable to hold time from the time stamps
+  //  variable to indicate whether the time stamp is considered present, late, or absent:
   let marks = "unknown";
-  for (let i = 0; i < stamps[0].length; i++) {
-    //  convert firebase time to normal:
+  for (let i = 0; i < stamps[0].length; i++) {  //  iterate through the time stamps
+    //  convert firebase time to normal time:
     let fireBaseTime = new Date(stamps[0][i].seconds * 1000 + stamps[0][i].nanoseconds / 1000000,);
-    dateStamps = fireBaseTime.toDateString();
-    timeStamps = fireBaseTime.toLocaleTimeString();
+    dateStamps = fireBaseTime.toDateString();  //  grab the date from the current time stamp
+    timeStamps = fireBaseTime.toLocaleTimeString();  //  grab the time from the current time stamp
+    //  if the time is midnight that means the user has not swiped for this class yet:
+    if (timeStamps == "12:00:00 AM") {  //  check if time is midnight
+      timeStamps = "TBD";  //  set their time stamp to TBD
+      marks = "TBD";  //  set their mark to TBD
+    }
+    //  add a table row with the time stamp data to the table string
     table = table + "<tr> <td>"+ dateStamps +"</th> <th>"+timeStamps+"</th> <th>"+marks+"</th> </tr>";
   }
-  table = table + "</table>";
-  let div = document.getElementById("table");
-  div.innerHTML = table;
+  table = table + "</table>";  //  end the table element
+  let div = document.getElementById("table");  //  grab the table element from index.html
+  div.innerHTML = table;  //  write the table string to the table element
 }
+//------------------------------------------------------------------
+//  a function that adds or updates a class in the database
+async function initializeClass(className, classDays, timeSlotStart, timeSlotEnd, firstDay, lastDay, roomNumber) {
+  let days = [];  //  array to be given day values
+  days = classDays.split(/[, ]+/);  //  split the string of days and put them into days[] array
+  // Add a new document in collection "Classes" with data from the admin
+  await setDoc(doc(db, "Classes", className), {
+    Name: className,
+    roomNumber: roomNumber,
+    startDate: firstDay,
+    endDate: lastDay,
+    startTime: timeSlotStart,
+    endTime: timeSlotEnd,
+    classDays: days,
+  });
+  
+  let info = [];  //  array to be given data about the class from the db
+  //  grab class info 'Classes' collection from database:
+  const docRef = doc(db, "Classes", className);
+  const docSnap = await getDoc(docRef);  //  make a reference to the new class
+  if (docSnap.exists()) {  // check if the reference exists
+    info.push(docSnap.data());  //  push data into info array
+    //console.log("Document data:", info);  //  log to console for testing
+  }  else {  //  in this case the reference was invalid
+    // doc.data() will be undefined in this case
+    console.log("No such document!");  //  log error to console
+  }
+  let startDate = new Date(info[0].startDate);  //  get the start date of the class
+  let endDate = new Date(info[0].endDate);  //  get the end date of the class
+
+  for (let i = 0; i < days.length; i++) {  //  iterate through days[]
+    //  swap the days strings with their corrresponding number values:
+    if (days[i] == "Monday") days[i] = 1;
+    else if (days[i] == "Tuesday") days[i] = 2;
+    else if (days[i] == "Wednesday") days[i] = 3;
+    else if (days[i] == "Thursday") days[i] = 4;
+    else if (days[i] == "Friday") days[i] = 5;
+  }  
+  let allDates = [];  //  array to be given time stamps of class meetings
+  let begin = startDate;  //  variable that is incremented day by day
+  //  increment through all days between the starting date and ending date:
+  while (begin <= endDate) {
+    let theDay = begin.getDay();  //  get the current day
+    //  check if the day of the week matches when the class meets:
+    if (days.includes(theDay)) {
+      //  set time of time stamp to class start time:
+      //begin.setTime(timeSlotStart);
+      allDates.push(new Date(begin));  // push this day into allDates
+    }
+    begin.setDate(begin.getDate()+1);  //  increment begin to next day
+  }
+  let stamps = [];  //  array to be given data from allDates[]
+  for (let i = 0; i < allDates.length; i++) {  // increment through allDates[]
+    //  convert the date to a firebase Time stamp and push it to stamps[]:
+    stamps.push(Timestamp.fromDate(allDates[i]));
+  }
+  // update document in collection 'Classes' with the stamps array:
+  await updateDoc(doc(db, "Classes", className), {
+    classMeetings: stamps
+  });
+}
+//------------------------------------------------------------------
+//  function that adds a student to a class in the database:
+async function addStudent(className, studentID) {
+  let info = [];  //  array to be given class data from db
+  //  grab class info 'Classes' collection from database:
+  const docRef = doc(db, "Classes", className);
+  const docSnap = await getDoc(docRef);  //  get a snapshot of the reference
+  if (docSnap.exists()) {  //  check if the reference exists
+    info.push(docSnap.data());  //  push the data into info[]
+    //console.log("Document data:", info);  //  log to console for testing
+  }  else {  //  in this case the reference was invalid
+    // doc.data() will be undefined in this case
+    console.log("No such document!");  //  log the error to console
+  }
+  //  grab the starting date of the class from info[]:
+  let startDate = new Date(info[0].startDate);
+  //  grab the ending date of the class from info[]:
+  let endDate = new Date(info[0].endDate);
+  //  grab the days of the week which the class meets from info[]:
+  let days = info[0].classDays;
+  for (let i = 0; i < days.length; i++) {   //  increment through days[]
+    //  swap the days strings with their corrresponding number values:
+    if (days[i] == "Monday") days[i] = 1;
+    else if (days[i] == "Tuesday") days[i] = 2;
+    else if (days[i] == "Wednesday") days[i] = 3;
+    else if (days[i] == "Thursday") days[i] = 4;
+    else if (days[i] == "Friday") days[i] = 5;
+  }
+  let allDates = [];  //  array to be given time stamps of class meetings
+  let begin = startDate;  //  variable that is incremented day by day
+  //  increment through all days between the starting date and ending date:
+  while (begin <= endDate) {
+    let theDay = begin.getDay();  //  get the current day
+    //  check if the day of the week matches when the class meets:
+    if (days.includes(theDay)) {
+      begin.setHours(0,0,0);  //  set time to midnight
+      allDates.push(new Date(begin));  //  push this day into allDates[]
+    }
+    begin.setDate(begin.getDate()+1);  //  increment begin to next day
+  }
+  let stamps = [];  //  array to be given data from allDates[]
+  for (let i = 0; i < allDates.length; i++) {  // increment through allDates[]
+    //  convert the date to a firebase Time stamp and push it to stamps[]:
+    stamps.push(Timestamp.fromDate(allDates[i]));
+  }
+  //  Add the new array in the student document which is in the 'Students' subcollection
+  //  in the class document located in 'Classes' collection:
+  await setDoc(doc(db, "Classes", className, "Students", studentID), {
+    RFID_scans: stamps
+  });
+}
+//------------------------------------------------------------------
 
 //------------------------------------------------------------------
+//  below is code that may be needed later:
+
 
 //  the following is code for how to use firebase Timestamp object:
 /*
@@ -151,3 +319,13 @@ console.log(studentData);
 //const sessions = se.at(-1).Sessions;
 //console.log(sessions);
 */
+
+ /*  Code for iterating through docs in a collection:
+  //  grab 'Classes' collection from database:
+  const querySnapshot = await getDocs(collection(db, "Users"));
+  //  iterate through each doc in 'Classes':
+  querySnapshot.forEach((doc) => {
+    //push the Name of each 'Class' doc into names[]:
+    names.push(doc.data().Name);
+  })
+  */
