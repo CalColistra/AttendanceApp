@@ -2,7 +2,7 @@ import { initializeApp} from 'firebase/app'
 import { 
          getFirestore, collection, onSnapshot, doc,
          query, where, getDocs, Timestamp, getDoc, setDoc,
-         updateDoc
+         updateDoc, arrayUnion
        } from 'firebase/firestore'
 
 
@@ -34,7 +34,7 @@ let showClasses = document.getElementById("showClasses");
 //  init reference to element with id currnetClass
 let currentClass = document.getElementById("currentClass").textContent;
 //------------------------------------------------------------------
-//  function that executes every half second:
+//  function that executes every .3 of a second:
 setInterval(function() { // run every half second
   //  check if show table content from index.html is true:
   let showTableBool = showTable.textContent;
@@ -86,7 +86,7 @@ setInterval(function() { // run every half second
     //  set addStudentBool to false:
     document.getElementById("addStudentBool").innerText = "false";
   }
-}, 500);   //time interval for every half second (500ms = .5 seconds)
+}, 300);   //time interval for every half second (300ms = .3 seconds)
 //------------------------------------------------------------------
 // function that populates the home page with course names from the database:
 async function populateHomePage() {
@@ -123,10 +123,6 @@ async function populateHomePage() {
 async function populateTable(user, currentClass) {
   //  array to later be initialized with the user's time stamps:
   let stamps = [];
-  //  initialize a string for writing the table to index.html:
-  let table = "<table class='dataTable'>";
-  //  add table headers to the string:
-  table = table + "<tr> <th>Class Date</th> <th>Time of Swipe</th> <th>Attendance Mark</th> </tr>";
   //  grab the student from the 'Students' subcollection inside the current class's document:
   const docRef = doc(db, "Classes", currentClass, "Students",  user);
   const docSnap = await getDoc(docRef);  //  get a reference to the document
@@ -138,6 +134,64 @@ async function populateTable(user, currentClass) {
     // doc.data() will be undefined in this case
     console.log("No such document!");  //  log it to the console
   }
+
+  //  initialize a string for writing the table to index.html:
+  let table = "";
+  //  get today's date:
+  let date = new Date();  //  init date object
+  let day = date.getDate();
+  let month = date.getMonth() + 1;
+  let year = date.getFullYear();
+  //  arrange the date:
+  let currentDate = day+"-"+month+"-"+year;
+  //  show the current date on the html page:
+  table = "<div class='dataTable'>"+"Todays's Date: <strong>"+currentDate+"</strong></div>";
+  let stringDates = [];  //  array to be given dates in string form
+  for (let i = 0; i < stamps[0].length; i++) {  //  iterate through the time stamps
+    //  convert firebase time to normal time:
+    let fireBaseTime = new Date(stamps[0][i].seconds * 1000 + stamps[0][i].nanoseconds / 1000000,);
+    stringDates.push(fireBaseTime.toDateString());  //  push string date to stringDates
+  }
+  let fixedDates = [];  //  array to be given months and days converted to numbers
+  for (let i = 0; i < stringDates.length; i++) {  //  iterate through stringDates[]
+    //  check if the stringDates[i] = a month, then change the month to its number value
+    //  also add the day to the end of the string and set fixedDates[i] == to the string:
+    if (stringDates[i].substring(4,7) == "Jan") fixedDates[i] = "01" + stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Feb") fixedDates[i] = "02"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Mar") fixedDates[i] = "03"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Apr") fixedDates[i] = "04"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "May") fixedDates[i] = "05"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Jun") fixedDates[i] = "06"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Jul") fixedDates[i] = "07"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Aug") fixedDates[i] = "08"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Sep") fixedDates[i] = "09"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Oct") fixedDates[i] = "10"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Nov") fixedDates[i] = "11"+ stringDates[i].substring(8,10);
+    else if (stringDates[i].substring(4,7) == "Dec") fixedDates[i] = "12"+ stringDates[i].substring(8,10);
+  }
+  let nextClass = "";  //  variable to be given the next class
+  let thisMonth = Math.floor(month);  //  convert string to number
+  let thisDay = Math.floor(day);  //  convert string to number
+  for (let i = 0; i < fixedDates.length; i++) {  //  iterate throuhg fixed days
+    let checkDay = Math.floor(fixedDates[i].substring(2,4));  //  convert string to number
+    let checkMonth = Math.floor(fixedDates[i].substring(0,2));  //  convert string to number
+    //  check if fixedDates[i] is the next class according to todays date
+    if ( (thisMonth == checkMonth) && (thisDay <= checkDay)) {
+      nextClass = stringDates[i];  //  set nextClass to the next class
+      break;  //  break out of for loop
+    }
+    else if (thisMonth == (checkMonth-1)) {
+      nextClass = stringDates[i];  //  set nextClass to the next class
+      break;  //  break out of for loop
+    }
+  }
+
+  //  show the user their next class
+  table = table + "<div class='dataTable'>"+"You're next class is: <strong>"+nextClass+"</strong></div>" + "</br>";
+  table = table + "<table class='dataTable'>";  //  add table header
+  //  add table headers to the string:
+  table = table + "<tr> <th>Class Date</th> <th>Time of Swipe</th> <th>Attendance Mark</th> </tr>";
+
   let dateStamps;  //  variable to hold dates time stamps
   let timeStamps;  //  variable to hold time from the time stamps
   //  variable to indicate whether the time stamp is considered present, late, or absent:
@@ -270,6 +324,11 @@ async function addStudent(className, studentID) {
   await setDoc(doc(db, "Classes", className, "Students", studentID), {
     RFID_scans: stamps
   });
+  // update document in collection 'Users' with the class name:
+  await updateDoc(doc(db, "Users", studentID), {
+    Classes: arrayUnion(className)
+  });
+
 }
 //------------------------------------------------------------------
 

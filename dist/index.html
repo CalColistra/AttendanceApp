@@ -49,10 +49,12 @@
           let initClassPage = document.getElementById("initClassPage");
           initClassPage.style.display = "block";
           document.getElementById('title').innerText = "Create a Class";
+          document.getElementById("adminBack").style.display = "block";
         }
         else if(document.getElementById('addStudents').checked) {
           adminStart.style.display = "none";
           document.getElementById("addStudentsPage").style.display = "block";
+          document.getElementById("adminBack").style.display = "block";
           document.getElementById('title').innerText = "Add Students";
         }
       }
@@ -214,6 +216,10 @@
             margin-right: auto;
             border: 1px solid black;
           }
+          #adminBack{
+            margin-left: auto;
+            margin-right: auto;
+          }
         </style>
         
         <h2 class="text-center" id="title" >Login: </h2>
@@ -251,8 +257,8 @@
               <tr><td><label>Friday <input type="checkbox" name="Friday" value="" id ="Friday"/></label></td> </tr>
             </table>
             <div style="padding: 2px; background-color: #f9f9f9;">
-              <label>Enter the first day of this class: <input type="date" name="firstDay" value="" id ="firstDay"/></label> <br/>
-              <label>Enter the last day of this class: <input type="date" name="lastDay" value="" id ="lastDay"/></label><br/>
+              <label>Beginning of semester: <input type="date" name="firstDay" value="" id ="firstDay"/></label> <br/>
+              <label>End of semester: <input type="date" name="lastDay" value="" id ="lastDay"/></label><br/>
               <strong>Enter the time slot for this class:</strong><br/>
               <label>Start Time: <input type="time" name="startTime" value="" id ="startTime"/></label>  
               <label>End Time: <input type="time" name="endTime" value="" id ="endTime"/></label>  <br/>
@@ -275,8 +281,8 @@
         </div>
 
         <div id="confirmAddStudent" style="display: none; text-align:center;">
-          <strong>You have succesfully added a student to the class</strong><br/>
-          <button id="addAnother" onclick="addAnother();"> Add Another Student </button> <br/>
+          <strong>You have succesfully added a student to the class</strong><br/><br/>
+          <button id="addAnother" onclick="addAnother();"> Add Another Student </button> <br/><br/>
           <button id="adminBack" onclick="adminBack();"> Back </button>
         </div>
 
@@ -411,7 +417,7 @@
     <footer class="text-muted">
       <div style="justify-content: center; display: flex;">
         <a href="index.html">
-          <strong class="shadow">Back To Home</strong>
+          <strong class="shadow">Logout</strong>
         </a>
       </div>
       
