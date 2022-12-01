@@ -142,10 +142,12 @@ async function populateTable(user, currentClass) {
   let day = date.getDate();
   let month = date.getMonth() + 1;
   let year = date.getFullYear();
+  //  date to be printed:
+  let printDate = month+"-"+day+"-"+year;
   //  arrange the date:
   let currentDate = day+"-"+month+"-"+year;
   //  show the current date on the html page:
-  table = "<div class='dataTable'>"+"Todays's Date: <strong>"+currentDate+"</strong></div>";
+  table = "<div class='dataTable'>"+"Todays's Date: <strong>"+printDate+"</strong></div>";
   let stringDates = [];  //  array to be given dates in string form
   for (let i = 0; i < stamps[0].length; i++) {  //  iterate through the time stamps
     //  convert firebase time to normal time:
@@ -172,6 +174,7 @@ async function populateTable(user, currentClass) {
   let nextClass = "";  //  variable to be given the next class
   let thisMonth = Math.floor(month);  //  convert string to number
   let thisDay = Math.floor(day);  //  convert string to number
+  let thisYear = Math.floor(year);  //  convert string to number
   for (let i = 0; i < fixedDates.length; i++) {  //  iterate throuhg fixed days
     let checkDay = Math.floor(fixedDates[i].substring(2,4));  //  convert string to number
     let checkMonth = Math.floor(fixedDates[i].substring(0,2));  //  convert string to number
@@ -201,10 +204,31 @@ async function populateTable(user, currentClass) {
     let fireBaseTime = new Date(stamps[0][i].seconds * 1000 + stamps[0][i].nanoseconds / 1000000,);
     dateStamps = fireBaseTime.toDateString();  //  grab the date from the current time stamp
     timeStamps = fireBaseTime.toLocaleTimeString();  //  grab the time from the current time stamp
-    //  if the time is midnight that means the user has not swiped for this class yet:
+
+    let checkDay = Math.floor(fixedDates[i].substring(2,4));  //  convert string to number
+    let checkMonth = Math.floor(fixedDates[i].substring(0,2));  //  convert string to number
+    let checkYear = Math.floor(stringDates[i].substring(11,15));  //  convert string to number
+
+    //  if the time is midnight that means the user has not swiped for this class:
     if (timeStamps == "12:00:00 AM") {  //  check if time is midnight
-      timeStamps = "TBD";  //  set their time stamp to TBD
-      marks = "TBD";  //  set their mark to TBD
+      //  check if the class meeting is in the past in the same month
+      if ( (thisMonth >= checkMonth) && (thisDay > checkDay)) {
+        timeStamps = "No Swipe";  //  set their timestamp to no swipe
+        marks = "Absent";  //  set their mark to absent
+      }
+      //  check if the class meeting is in the last month:
+      else if (thisMonth > checkMonth) {
+        timeStamps = "No Swipe";  //  set their timestamp to no swipe
+        marks = "Absent";  //  set their mark to absent
+      }
+      else {
+        timeStamps = "TBD";  //  set their time stamp to TBD
+        marks = "TBD";  //  set their mark to TBD
+      }
+      if (thisYear < checkYear) {  //  check if the class is next year
+        timeStamps = "TBD";  //  set their time stamp to TBD
+        marks = "TBD";  //  set their mark to TBD
+      }
     }
     //  add a table row with the time stamp data to the table string
     table = table + "<tr> <td>"+ dateStamps +"</th> <th>"+timeStamps+"</th> <th>"+marks+"</th> </tr>";
