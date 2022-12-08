@@ -108,65 +108,8 @@ static void connectToWiFi ( void ) {  //function to connect to wifi
   Serial.println( WiFi.localIP() );
 }
 //----------------------------------------------------------------------
-void writeToDB(String userID) {
-Serial.print("Commit a document (append array)... ");
-
-        // The dyamic array of write object fb_esp_firestore_document_write_t.
-        std::vector<struct fb_esp_firestore_document_write_t> writes;
-
-        // A write object that will be written to the document.
-        struct fb_esp_firestore_document_write_t transform_write;
-
-        // Set the write object write operation type.
-        // fb_esp_firestore_document_write_type_update,
-        // fb_esp_firestore_document_write_type_delete,
-        // fb_esp_firestore_document_write_type_transform
-        transform_write.type = fb_esp_firestore_document_write_type_transform;
-
-        // Set the document path of document to write (transform)
-        transform_write.document_transform.transform_document_path = "RFID_scans/test_scans";
-
-        // Set a transformation of a field of the document.
-        struct fb_esp_firestore_document_write_field_transforms_t field_transforms;
-
-        // Set field path to write.
-        field_transforms.fieldPath = "scan_data_array";
-
-        // Set the transformation type.
-        // fb_esp_firestore_transform_type_set_to_server_value,
-        // fb_esp_firestore_transform_type_increment,
-        // fb_esp_firestore_transform_type_maaximum,
-        // fb_esp_firestore_transform_type_minimum,
-        // fb_esp_firestore_transform_type_append_missing_elements,
-        // fb_esp_firestore_transform_type_remove_all_from_array
-        field_transforms.transform_type = fb_esp_firestore_transform_type_append_missing_elements;
-
-        // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create.ino
-        FirebaseJson content;
-
-        String txt = userID;
-        int count = 0;
-        String place = "values/[0]/stringValue";
-        content.set(place, txt);
-        //content.set("values/[0]/integerValue", String(rand()).c_str());
-        //content.set("values/[1]/stringValue", txt);
-
-        // Set the transformation content.
-        field_transforms.transform_content = content.raw();
-
-        // Add a field transformation object to a write object.
-        transform_write.document_transform.field_transforms.push_back(field_transforms);
-
-        // Add a write object to a write array.
-        writes.push_back(transform_write);
-
-        if (Firebase.Firestore.commitDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, writes /* dynamic array of fb_esp_firestore_document_write_t */, "" /* transaction */))
-            Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
-        else
-            Serial.println(fbdo.errorReason());
-
-}
-//----------------------------------------------------------------------
+//  function that updates the time_stamp field in the user's document that exists 
+//  in RFID_scans collection in firebase database
 void timeStampWriteToDB(String userID) {
     Serial.print("Commit a document (set server value, update document)... ");
 
@@ -223,25 +166,6 @@ void timeStampWriteToDB(String userID) {
 
 }
 //----------------------------------------------------------------------
-void getDoc(String userID) {
-    String documentPath = "Classes/Software%20Engineering/Students";
-        String mask = userID;
-
-        // If the document path contains space e.g. "a b c/d e f"
-        // It should encode the space as %20 then the path will be "a%20b%20c/d%20e%20f"
-
-        Serial.print("Get a document... ");
-          
-        FirebaseJson json;
-
-        if (Firebase.Firestore.getDocument(&fbdo, FIREBASE_PROJECT_ID, "", documentPath.c_str(), mask.c_str())){
-          Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
-          json.setJsonData(fbdo.payload().c_str());
-        }
-        else Serial.println(fbdo.errorReason());
-        //return json;
-}
-//----------------------------------------------------------------------
 //function to read user ID of an RFID scan:
 String getID (String userID) {
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
@@ -273,68 +197,15 @@ void turnOnLED() {
   ledcWrite(bCh, 0);
 }
 //----------------------------------------------------------------------
-void updateScan(String userID) {
-        Serial.print("Commit a document (set server value, update document)... ");
-
-        // The dyamic array of write object fb_esp_firestore_document_write_t.
-        std::vector<struct fb_esp_firestore_document_write_t> writes;
-
-        // A write object that will be written to the document.
-        struct fb_esp_firestore_document_write_t transform_write;
-
-        // Set the write object write operation type.
-        // fb_esp_firestore_document_write_type_update,
-        // fb_esp_firestore_document_write_type_delete,
-        // fb_esp_firestore_document_write_type_transform
-        
-        transform_write.type = fb_esp_firestore_document_write_type_transform;
-
-        // Set the document path of document to write (transform)
-        transform_write.document_transform.transform_document_path = "test_collection/test_document";
-
-        // Set a transformation of a field of the document.
-        struct fb_esp_firestore_document_write_field_transforms_t field_transforms;
-
-        // Set field path to write.
-        field_transforms.fieldPath = "server_time";
-
-        // Set the transformation type.
-        //field_transforms.transform_type = fb_esp_firestore_transform_type_set_to_server_value;
-        field_transforms.transform_type = fb_esp_firestore_transform_type_append_missing_elements;
-        
-        // Set the transformation content, server value for this case.
-        // See https://firebase.google.com/docs/firestore/reference/rest/v1/Write#servervalue
-        field_transforms.transform_content = "REQUEST_TIME"; // set timestamp to "test_collection/test_document/server_time"
-
-        // Add a field transformation object to a write object.
-        transform_write.document_transform.field_transforms.push_back(field_transforms);
-
-        // Add a write object to a write array.
-        writes.push_back(transform_write);
-
-        if (Firebase.Firestore.commitDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, writes /* dynamic array of fb_esp_firestore_document_write_t */, "" /* transaction */))
-            Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
-        else
-            Serial.println(fbdo.errorReason());
-}
-//----------------------------------------------------------------------
 void loop() {
   String userID = "";
   if (rfid.PICC_IsNewCardPresent()) { // new tag is available
     if (rfid.PICC_ReadCardSerial()) { // NUID has been read
+    turnOnLED();
     userID = "";  //reset userID
     userID = getID(userID);  //get new userID
-    //writeToDB(userID);  //write the userID of new scan to firebaseDB
-    //timeStampWriteToDB(userID);  //write a userId and timeStamp to firebaseDB
-    updateScan(userID);
+    timeStampWriteToDB(userID);  //write a userId and timeStamp to firebaseDB
     //Serial.println(userID);
     }
   }
-  /*
-  if (query == 1) {
-    getDoc(userID);
-    query = 0;
-  }
-  */
-  turnOnLED();
 }
