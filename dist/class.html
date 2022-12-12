@@ -58,6 +58,7 @@
                                         </textarea>
                                         <br/>
                                         <input type='submit' value='Submit' />
+                                        <input type='reset' value='Clear' />
                                         </div>
                                         </form>" title="Note">
                                             <i class="material-icons">menu</i>
@@ -70,6 +71,38 @@
                                 <td>November 2, 2022</td>
                                 <td>2:00</td>
                                 <td style="background-color: chartreuse">Present</td>
+                                <td style="background-color:white">
+                                    <div class="container" style="background-color:none">
+                                        <button type="button" class="btn btn-outline-secondary" rel="popover" data-content="<form>
+                                        <div class='form-group'>
+                                        <label>
+                                        Edit Attendance Mark
+                                        </label>
+                                        <br/>
+                                        <input type='radio' id='pres' name='editAttend' value='Present' />
+                                        <label for='pres'>Present</label><br/>
+                                        <input type='radio' id='la' name='editAttend' value='Late' />
+                                        <label for='la'>Late</label><br />
+                                        <input type='radio' id='abs' name='editAttend' value='Absent' />
+                                        <label for='abs'>Absent</label>
+                                        <br/>
+                                        <br/>
+                                        <label>
+                                            Mark Lates/Absences
+                                        </label><br />
+                                        <input type='radio' id='exc' name='editAttend' value='Excused' />
+                                        <label for='exc'>Excused</label><br />
+                                        <input type='radio' id='unexc' name='editAttend' value='Unexcused' />
+                                        <label for='unexc'>Unexcused</label><br />
+                                        <input type='submit' value='Submit' />
+                                        <input type='reset' value='Clear' />
+                                        </div>
+                                        </form>" title="Edit Attendance">
+                                            <i class="material-icons">edit_calendar</i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <!--button for late/absent not submission: for student END-->
                             </tr>
                             <tr>
                                 <td>November 3, 2022</td>
