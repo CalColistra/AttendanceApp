@@ -45,6 +45,26 @@
                                 <td>November 1, 2022</td>
                                 <td>1:00</td>
                                 <td style="background-color:chartreuse">Present</td>
+                                <!--button for late/absent note submission: for student-->
+                                <td>
+                                    <div class="container">
+                                        <button type="button" class="btn btn-outline-secondary" rel="popover" data-content="<form>
+                                        <div class='form-group'>
+                                        <label for='freeform'>
+                                        Enter Your Note
+                                        </label>
+                                        <br/>
+                                        <textarea id='note' name='freeform' rows=5 cols=25 style='text-align:left; white-space:normal'>
+                                        </textarea>
+                                        <br/>
+                                        <input type='submit' value='Submit' />
+                                        </div>
+                                        </form>" title="Note">
+                                            <i class="material-icons">menu</i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <!--button for late/absent not submission: for student END-->
                             </tr>
                             <tr>
                                 <td>November 2, 2022</td>
@@ -326,6 +346,15 @@
             integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <!-- code to initialize popovers-->
+    <script>
+        $(function () {
+            $('[rel="popover"]').popover({
+                html: true,
+                sanitize: false
+            });
+        })
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
