@@ -72,6 +72,10 @@ void setup() {
   ledcSetup(gCh, 1000, 8);
   ledcSetup(bCh, 1000, 8);
 
+  ledcWrite(rCh, 0);
+  ledcWrite(gCh, 0);
+  ledcWrite(bCh, 0);
+
   connectToWiFi();  //call function to connect to wifi
   Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
   /* Assign the api key (required) */
@@ -194,6 +198,10 @@ String getID (String userID) {
 void turnOnLED() {
   ledcWrite(rCh, 150);
   ledcWrite(gCh, 255);
+  ledcWrite(bCh, 0);
+  delay(1000);
+  ledcWrite(rCh, 0);
+  ledcWrite(gCh, 0);
   ledcWrite(bCh, 0);
 }
 //----------------------------------------------------------------------
