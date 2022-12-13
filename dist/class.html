@@ -14,8 +14,19 @@
 </head>
 <body>
     <div class="page-container bg-dark">
-        <a href="index.html" style="padding-left:0.5em">
-            <span class="material-icons" style="color:rgba(255, 255, 255, 1); font-size:36px">home</span>
+        <a href="#">
+            <i class="material-icons" style="color: rgb(255,255,255,1); font-size:36px; padding-left:0.1em">face</i>
+        </a> 
+        <a href="index.html" style="padding-left:0.1em; background-color:none">
+            <span class="material-icons" style="color:rgb(255, 255, 255, 1); font-size:36px">home</span>
+        </a>
+        <a href="#" rel="popover" data-placement="bottom" data-content="
+           <a href='class.html'>Class 1</a><br/>
+           <a href='class.html'>Class 2</a><br/>
+           <a href='class.html'>Class 3</a><br/>
+           <a href='class.html'>Class 4</a><br/>
+           <a href='class.html'>Class 5</a>">
+            <i class="material-icons" style="color: rgb(255, 255, 255, 1); font-size:36px">list</i>
         </a>
     </div>
     <main>
@@ -48,7 +59,7 @@
                                 <!--button for late/absent note submission: for student-->
                                 <td>
                                     <div class="container">
-                                        <button type="button" class="btn btn-outline-secondary" rel="popover" data-content="<form>
+                                        <a href="#" rel="popover" data-content="<form>
                                         <div class='form-group'>
                                         <label for='freeform'>
                                         Enter Your Note
@@ -61,8 +72,8 @@
                                         <input type='reset' value='Clear' />
                                         </div>
                                         </form>" title="Note">
-                                            <i class="material-icons">menu</i>
-                                        </button>
+                                            <i class="material-icons" style="color: rgb(0,0,0)">menu</i>
+                                        </a>
                                     </div>
                                 </td>
                                 <!--button for late/absent not submission: for student END-->
@@ -74,7 +85,7 @@
                                 <!--button for manual attendance editing: Teacher-->
                                 <td style="background-color:white">
                                     <div class="container" style="background-color:none">
-                                        <button type="button" class="btn btn-outline-secondary" rel="popover" data-content="<form>
+                                        <a href="#" rel="popover" data-content="<form>
                                         <div class='form-group'>
                                         <label>
                                         Edit Attendance Mark
@@ -99,8 +110,8 @@
                                         <input type='reset' value='Clear' />
                                         </div>
                                         </form>" title="Edit Attendance">
-                                            <i class="material-icons">edit_calendar</i>
-                                        </button>
+                                            <i class="material-icons" style="color: rgb(0,0,0)">edit_calendar</i>
+                                        </a>
                                     </div>
                                 </td>
                                 <!--button for manual attendance editing: Teacher END-->
