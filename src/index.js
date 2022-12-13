@@ -101,6 +101,8 @@ setInterval(function() { // run every half second
     test = false;
   }
 }, 300);   //time interval for every half second (300ms = .3 seconds)
+
+
 //------------------------------------------------------------------
 //  function that updates the RFID_scans array for students subcollections
 //  that exist in specific class documents
@@ -311,6 +313,7 @@ async function populateHomePage() {
     let s = "showClass" + (i+1);
     let show = document.getElementById(s);  //  grab the card element by ID
     show.style.display = "flex";  //display the html card element to the user
+    updateScans();
   }
 }
 //------------------------------------------------------------------
@@ -330,7 +333,18 @@ async function populateTable(user, currentClass) {
     // doc.data() will be undefined in this case
     console.log("No such document!");  //  log it to the console
   }
-
+  let start = [];
+  let startRef = doc(db, "Classes", currentClass);
+  let startSnap = await getDoc(startRef);  //snapshot data
+  if (startSnap.exists()) {
+    start.push(startSnap.data());
+  } else {
+    // doc.data() will be undefined in this case
+    console.log("No such document!");
+  }
+  let classStartTime = start[0].startTime;
+  let classStartTimeHour = Math.floor(classStartTime.substring(0,2)) % 12;
+  classStartTime = classStartTimeHour +":"+classStartTime.substring(3,5);
   //  initialize a string for writing the table to index.html:
   let table = "";
   //  get today's date:
@@ -385,8 +399,10 @@ async function populateTable(user, currentClass) {
     }
   }
 
+
   //  show the user their next class
-  table = table + "<div class='dataTable'>"+"You're next class is: <strong>"+nextClass+"</strong></div>" + "</br>";
+  table = table + "<div class='dataTable'>"+"You're next class is: <strong>"+nextClass+"</strong>";
+  table = table + " at <strong>"+classStartTime + "</strong></div></br>";
   table = table + "<table class='dataTable'>";  //  add table header
   //  add table headers to the string:
   table = table + "<tr> <th>Class Date</th> <th>Time of Swipe</th> <th>Attendance Mark</th> </tr>";
@@ -395,6 +411,11 @@ async function populateTable(user, currentClass) {
   let timeStamps;  //  variable to hold time from the time stamps
   //  variable to indicate whether the time stamp is considered present, late, or absent:
   let marks = "unknown";
+  let color;
+  let totalPresent = 0;
+  let totalLate = 0;
+  let totalAbsent = 0;
+  let classesLeft = 0;
   for (let i = 0; i < stamps[0].length; i++) {  //  iterate through the time stamps
     //  convert firebase time to normal time:
     let fireBaseTime = new Date(stamps[0][i].seconds * 1000 + stamps[0][i].nanoseconds / 1000000,);
@@ -411,11 +432,13 @@ async function populateTable(user, currentClass) {
       if ( (thisMonth >= checkMonth) && (thisDay > checkDay)) {
         timeStamps = "No Swipe";  //  set their timestamp to no swipe
         marks = "Absent";  //  set their mark to absent
+        color = "#FE594E";
       }
       //  check if the class meeting is in the last month:
       else if (thisMonth > checkMonth) {
         timeStamps = "No Swipe";  //  set their timestamp to no swipe
         marks = "Absent";  //  set their mark to absent
+        color = "#FE594E";
       }
       else {
         timeStamps = "TBD";  //  set their time stamp to TBD
@@ -431,6 +454,7 @@ async function populateTable(user, currentClass) {
       let timeSnap = await getDoc(timeRef);  //snapshot data
       let times = [];
       marks = "Absent";
+      color = "#FE594E";
       if (timeSnap.exists()) {
         times.push(timeSnap.data());
         //console.log("start&end times:", times);
@@ -449,22 +473,66 @@ async function populateTable(user, currentClass) {
       if ( ((fireBaseTime.getTime()) >= (starting.getTime() - earlySwipe)) && 
             (fireBaseTime < starting) ) {
               marks = "Early";
+              color = "#C3F87F";
           }
       else if ( ((fireBaseTime.getTime()) >= starting.getTime()) && 
             (fireBaseTime.getTime() <= starting.getTime() + lateSwipe) ) {
               marks = "Present";
+              color = "#C3F87F";
       }
       else if ( ((fireBaseTime.getTime()) >= starting.getTime() + lateSwipe) && 
             (fireBaseTime.getTime() <= ending.getTime()) ) {
               marks = "Late";
+              color = "#F8F77F";
       }
     }
+    if (marks == "Present") totalPresent++;
+    else if (marks == "Early") totalPresent++; 
+    else if (marks == "Late") totalLate++;  
+    else if (marks == "Absent") totalAbsent++;
+    else if (marks == "TBD") classesLeft++;
     //  add a table row with the time stamp data to the table string
-    table = table + "<tr> <td>"+ dateStamps +"</th> <th>"+timeStamps+"</th> <th>"+marks+"</th> </tr>";
+    table = table + "<tr> <td>"+ dateStamps +"</th> <th>"+timeStamps+"</th> <th style='background-color:"+color+"'>"+marks+"</th> </tr>";
+    color = "";
   }
   table = table + "</table>";  //  end the table element
   let div = document.getElementById("table");  //  grab the table element from index.html
   div.innerHTML = table;  //  write the table string to the table element
+  document.getElementById("totalPresent").innerText = totalPresent + " days";
+  document.getElementById("totalLate").innerText = totalLate + " days";
+  document.getElementById("totalAbsent").innerText = totalAbsent + " days";
+  document.getElementById("classesLeft").innerText = classesLeft + " classes";
+  let labels = ['Present', 'Late', 'Absent'];
+  let attendData = [totalPresent, totalLate, totalAbsent];
+  const data = {
+    labels: labels,
+    datasets: [{
+      data: attendData,
+      backgroundColor: ['rgb(82, 222, 40)', 'rgb(252, 234, 35)', 'rgb(240, 10, 10)']
+    }]
+  };
+  const config = {
+    type: 'pie',
+    data: data,
+    options: {
+      plugins: {
+        legend: {
+          display: true
+        }
+      }
+    }
+  };
+
+  let chartContainer = document.getElementById("chartContainer");
+  let writeChart = "<canvas id='attendPie'></canvas>";
+  chartContainer.innerHTML = writeChart;
+  let chart = new Chart(
+    document.getElementById('attendPie'), config
+  );
+  totalAbsent = 0;
+  totalPresent = 0;
+  classesLeft = 0;
+  totalLate = 0;
 }
 //------------------------------------------------------------------
 //  a function that adds or updates a class in the database
