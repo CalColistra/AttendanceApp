@@ -16,12 +16,11 @@ This project’s primary goal is to allow students to submit their attendance us
 
 ![image](https://user-images.githubusercontent.com/90743678/207451590-16653707-5bdd-4c37-b285-4b24ba8e4d77.png)
 
-Attendance page for particular class:
+
 
  
 ![image](https://user-images.githubusercontent.com/90743678/207451778-fd6e6ee0-7ce8-4cbf-85d2-20e7b7aa58f6.png)
 
-Scanning their id by using RFID Scanner:
 
  
 
@@ -29,7 +28,7 @@ Scanning their id by using RFID Scanner:
 
 
 
-Attendance page for particular class after their swipe their card:
+
 
  
 
@@ -38,7 +37,7 @@ Attendance page for particular class after their swipe their card:
 
 
 
-Total Attendance page where Present/Absent will be shown:
+
 
 
 
@@ -46,7 +45,7 @@ Total Attendance page where Present/Absent will be shown:
 ![image](https://user-images.githubusercontent.com/90743678/207451982-9f7b16c8-8d08-4f23-891b-0a7656262bd3.png)
 
 
-Admin Page: 
+
 
 
  
@@ -54,7 +53,6 @@ Admin Page:
 ![image](https://user-images.githubusercontent.com/90743678/207452010-e845907b-538c-4d55-a4f9-5fb6c392775a.png)
 
 
-Adding students in to the class:
 
 
 
@@ -63,7 +61,6 @@ Adding students in to the class:
 
 
 
-Creating a class into the Database:
 
  
 ![image](https://user-images.githubusercontent.com/90743678/207452106-07c0434d-d4c1-4352-97ad-8b200ebbfabc.png)
