@@ -10,7 +10,7 @@ This project’s primary goal is to allow students to submit their attendance us
  ![image](https://user-images.githubusercontent.com/90743678/207451551-99d2e37c-70b2-41f6-ab0f-0e543534e83b.png)
  
  
-Classes Page:
+
 
  
 
