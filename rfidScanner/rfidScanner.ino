@@ -14,8 +14,8 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <WiFi.h>  //include needed for wifi connection
-#define ssid "magic-kingdom"
-#define pwd "Irish383"
+#define ssid "<network-name>"
+#define pwd "<passowrd>"
 static WiFiServer server( 80 );  //using port 80
 //WiFiClient client;
 
